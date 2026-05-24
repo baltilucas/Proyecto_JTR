@@ -37,6 +37,7 @@ resource "aws_instance" "mpi_cluster" {
               echo "${file("./cluster_key.pub")}" >> /home/ubuntu/.ssh/authorized_keys
               
               echo "${file("./cluster_key")}" > /home/ubuntu/.ssh/id_rsa
+
               chmod 600 /home/ubuntu/.ssh/id_rsa
 
               echo "Host *" > /home/ubuntu/.ssh/config
@@ -45,13 +46,26 @@ resource "aws_instance" "mpi_cluster" {
               chown -R ubuntu:ubuntu /home/ubuntu/.ssh
               EOF
 
+  provisioner "file" {
+    source      = "./diccionario.txt"
+    destination = "/home/ubuntu/diccionario.txt"
+
+    # Terraform necesita conectarse por SSH para subirlo, usamos la clave privada local
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file("./cluster_key")
+      host        = self.public_ip
+    }
+  }
+
   tags = {
     Name = "MPI-Node-${count.index}"
   }
 }
 
 resource "aws_security_group" "allow_ssh" {
-  name        = "allow_ssh"
+  name        = "ssh_JTR"
   description = "Allow SSH inbound traffic"
 
   ingress {

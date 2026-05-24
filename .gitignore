@@ -2,3 +2,21 @@
 cluster_key
 
 cluster_key.pub
+
+lab_paralela.pem
+
+/.terraform
+
+parser
+
+.terraform.lock.hcl
+
+.terraform/providers/registry.terraform.io/hashicorp/null/3.3.0/linux_amd64/terraform-provider-null_v3.3.0_x5
+
+.terraform/providers/registry.terraform.io/hashicorp/aws/5.100.0/linux_amd64/terraform-provider-aws_v5.100.0_x5
+
+.terraform/providers/registry.terraform.io/hashicorp/null/3.3.0/linux_amd64/
+
+terraform.tfstate
+
+terraform.tfstate.backup
