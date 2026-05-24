@@ -38,6 +38,10 @@ resource "aws_instance" "mpi_cluster" {
               
               echo "${file("./cluster_key")}" > /home/ubuntu/.ssh/id_rsa
 
+              echo "${file("./comp_and_dist.sh")}" > /home/ubuntu/
+
+              chmod +x comp_and_dist.sh
+
               chmod 600 /home/ubuntu/.ssh/id_rsa
 
               echo "Host *" > /home/ubuntu/.ssh/config
@@ -58,6 +62,31 @@ resource "aws_instance" "mpi_cluster" {
       host        = self.public_ip
     }
   }
+
+  provisioner "file" {
+    source      = "./comp_and_dist.sh"
+    destination = "/home/ubuntu/comp_and_dist.sh"
+       connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file("./cluster_key")
+      host        = self.public_ip
+    }
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /home/ubuntu/comp_and_dist.sh",
+    ]
+       connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file("./cluster_key")
+      host        = self.public_ip
+    }
+  }
+
+
 
   tags = {
     Name = "MPI-Node-${count.index}"
@@ -113,4 +142,14 @@ resource "null_resource" "generate_hostfile" {
       "chmod 644 /home/ubuntu/hostfile"
     ]
   }
+}
+
+output "master_node_public_ip" {
+  description = "Dirección IP pública del mpi-cluster-0 (Nodo Maestro)"
+  value       = aws_instance.mpi_cluster[0].public_ip
+}
+
+output "ssh_connect_master" {
+  description = "Comando para conectarte directo al nodo maestro"
+  value       = "ssh -i \"lab_paralela.pem\" ubuntu@${aws_instance.mpi_cluster[0].public_ip}"
 }
